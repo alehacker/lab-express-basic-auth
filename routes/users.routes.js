@@ -6,6 +6,8 @@ const saltRounds = 10;
 
 const User = require('../models/User.model')
 
+const { isLoggedIn, isLoggedOut } = require('../middleware/route-guard.js');
+
 /* GET users listing. */
 router.get('/signup', (req, res, next) => {
     res.render('auth/signup.hbs');
@@ -66,6 +68,22 @@ router.post('/login', (req, res, next) => {
         }
       })
       .catch(error => next(error));
+  });
+
+  // Main route to try middlewares
+  router.get('/main', isLoggedIn, (req, res, next) => { 
+    res.render('main.hbs')
+  })
+
+  router.get('/private', isLoggedIn, (req, res, next) => {
+    res.render('private.hbs')
+  })
+
+  router.get('/logout', isLoggedIn, (req, res, next) => {
+    req.session.destroy(err => {
+      if (err) next(err);
+      res.redirect('/');
+    });
   });
 
 module.exports = router;
